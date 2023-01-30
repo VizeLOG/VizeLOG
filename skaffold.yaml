@@ -17,3 +17,11 @@ build:
         manual:
           - src: "**/*.js"
             dest: .
+    - image: vizelog/youtubeservice
+      context: youtubeservice
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
