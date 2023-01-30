@@ -41,3 +41,11 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: vizelog/tiktokservice
+      context: tiktokservice
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
