@@ -25,3 +25,11 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: vizelog/instagramservice
+      context: instagramservice
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
