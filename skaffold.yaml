@@ -33,3 +33,11 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: vizelog/facebookservice
+      context: facebookservice
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
