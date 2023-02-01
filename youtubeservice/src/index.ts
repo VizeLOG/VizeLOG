@@ -6,7 +6,7 @@ const app = express();
 app.use(json());
 
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.YOUTUBE_API_KEY;
 
 const SEARCH_QUERY = 'keyword';
 const START_DATE = 'START_DATE';
@@ -44,8 +44,8 @@ async function searchYouTube() {
 
 
 app.listen(3000, () => {
-  if (!process.env.API_KEY) {
-    throw new Error('API_KEY must be defined');
+  if (!process.env.YOUTUBE_API_KEY) {
+    throw new Error('YOUTUBE_API_KEY must be defined');
   }
 	console.log("YouTube service listening on port 3000!!!!");
 	searchYouTube();
