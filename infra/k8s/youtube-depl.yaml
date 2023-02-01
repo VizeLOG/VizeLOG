@@ -15,6 +15,12 @@ spec:
       containers:
         - name: youtubeservice
           image: vizelog/youtubeservice
+          env:
+            - name: YOUTUBE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-secret
+                  key: YOUTUBE_API_KEY
 ---
 apiVersion: v1
 kind: Service
