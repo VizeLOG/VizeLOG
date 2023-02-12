@@ -9,7 +9,7 @@ const START_DATE = "2023-01-01";
 const END_DATE = "2023-01-31";
 
 router.get(
-  "/api/search/youtube/video/:keyword",
+  "/api/youtube/search/video/:keyword",
   async (req: Request, res: Response) => {
 		const showVideoYoutubeByKeyword = await searchVideos(req.params.keyword, START_DATE, END_DATE);
 	

@@ -4,7 +4,7 @@ const googleTrends = require("google-trends-api");
 const router = express.Router();
 
 router.get(
-  "/api/search/youtube/trend/:keyword/",
+  "/api/youtube/search/trend/:keyword/",
   async (req: Request, res: Response) => {
     const keyword = req.params.keyword;
     const startTime = req.query.starttime;
