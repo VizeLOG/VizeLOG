@@ -10,6 +10,13 @@ spec:
     - host: vizelog.dev
       http:
         paths:
+          - path: /api/youtube/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: youtubeservice-srv
+                port:
+                  number: 3000
           - path: /?(.*)
             pathType: Prefix
             backend:

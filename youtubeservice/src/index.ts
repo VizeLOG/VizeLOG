@@ -1,9 +1,17 @@
-import express from "express";
-import { json } from "body-parser";
+import { app } from "./app";
 
-const app = express();
-app.use(json());
+const API_KEY = "YOUTUBE_API_KEY";
 
-app.listen(3000, () => {
-	console.log("YouTube service listening on port 3000!!!!");
-});
+const start = async () => {
+  console.log("Starting youtube service...");
+
+  if (!API_KEY) {
+    throw new Error("YOUTUBE_API_KEY must be defined");
+  }
+
+  app.listen(3000, async () => {
+    console.log("YouTube service listening on port 3000!!!!");
+  });
+};
+
+start();
