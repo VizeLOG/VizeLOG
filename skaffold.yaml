@@ -57,3 +57,11 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: vizelog/googleservice
+      context: googleservice
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
