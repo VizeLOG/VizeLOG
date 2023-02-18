@@ -29,63 +29,63 @@ const Date_7_ago_formatted =
   getYear_start7 + "-" + getMonth_start7 + "-" + getDate_start7;
 
 router.get(
-  "/api/youtube/search/trend/:keyword",
+  "/api/google/search/trend/:keyword",
   async (req: Request, res: Response) => {
     const keyword = req.params.keyword;
 
-    const showVideoYoutubeByKeyword_30D = await GoogleTrendsWithDays(
+    const showTrendGoogleByKeyword_30D = await GoogleTrendsWithDays(
       keyword,
       Date_30_ago_formatted,
       Date_now_formatted
     );
 
-    const showVideoYoutubeByHashtag_30D = await GoogleTrendsWithDays(
-      "#" + keyword,
-      Date_30_ago_formatted,
-      Date_now_formatted
-    );
-
-    const showVideoYoutubeByKeyword_7D = await GoogleTrendsWithDays(
+    const showTrendGoogleByKeyword_7D = await GoogleTrendsWithDays(
       keyword,
       Date_7_ago_formatted,
       Date_now_formatted
     );
 
-    const showVideoYoutubeByHashtag_7D = await GoogleTrendsWithDays(
-      "#" + keyword,
-      Date_7_ago_formatted,
-      Date_now_formatted
-    );
-
-    const showVideoYoutubeByKeyword_1D = await GoogleTrendsWithOneDay(
+    const showTrendGoogleByKeyword_1D = await GoogleTrendsWithOneDay(
       keyword,
       get_24_hoursAgo
     );
 
-    const showVideoYoutubeByHashtag_1D = await GoogleTrendsWithOneDay(
+    const showTrendGoogleByHashtag_30D = await GoogleTrendsWithDays(
+      "#" + keyword,
+      Date_30_ago_formatted,
+      Date_now_formatted
+    );
+
+    const showTrendGoogleByHashtag_7D = await GoogleTrendsWithDays(
+      "#" + keyword,
+      Date_7_ago_formatted,
+      Date_now_formatted
+    );
+
+    const showTrendGoogleByHashtag_1D = await GoogleTrendsWithOneDay(
       "#" + keyword,
       get_24_hoursAgo
     );
 
     if (
-      showVideoYoutubeByKeyword_30D instanceof Error &&
-      showVideoYoutubeByKeyword_7D instanceof Error &&
-      showVideoYoutubeByKeyword_1D instanceof Error &&
-      showVideoYoutubeByHashtag_30D instanceof Error &&
-      showVideoYoutubeByHashtag_7D instanceof Error &&
-      showVideoYoutubeByHashtag_1D instanceof Error
+      showTrendGoogleByKeyword_30D instanceof Error &&
+      showTrendGoogleByKeyword_7D instanceof Error &&
+      showTrendGoogleByKeyword_1D instanceof Error &&
+      showTrendGoogleByHashtag_30D instanceof Error &&
+      showTrendGoogleByHashtag_7D instanceof Error &&
+      showTrendGoogleByHashtag_1D instanceof Error
     ) {
       res.sendStatus(404);
       throw new Error();
     }
 
     res.send({
-      youtubekeyword30d: showVideoYoutubeByKeyword_30D,
-      youtubehashtag30d: showVideoYoutubeByHashtag_30D,
-      youtubekeyword7d: showVideoYoutubeByKeyword_7D,
-      youtubehashtag7d: showVideoYoutubeByHashtag_7D,
-      youtubekeyword1d: showVideoYoutubeByKeyword_1D,
-      youtubehashtag1d: showVideoYoutubeByHashtag_1D,
+      googlekeyword30d: showTrendGoogleByKeyword_30D,
+      googlekeyword7d: showTrendGoogleByKeyword_7D,
+      googlekeyword1d: showTrendGoogleByKeyword_1D,
+      googlehashtag30d: showTrendGoogleByHashtag_30D,
+      googlehashtag7d: showTrendGoogleByHashtag_7D,
+      googlehashtag1d: showTrendGoogleByHashtag_1D,
     });
   }
 );
@@ -101,13 +101,14 @@ async function GoogleTrendsWithDays(
     endTime: new Date(endTime),
     timezone: 7,
     geo: "TH",
-    property: "youtube",
+    property: "",
   };
+
+  const dataQuery = { dataPoints: [{}], relatedQueries: [] };
 
   const dataFormatted = await googleTrends
     .interestOverTime(query)
     .then(function (results: any) {
-      const dataQuery = { dataPoints: [{}], relatedQueries: [] };
       var resultsJSON = JSON.parse(results);
 
       var data = resultsJSON["default"];
@@ -129,6 +130,7 @@ async function GoogleTrendsWithDays(
       dataQuery.dataPoints.shift();
 
       return dataQuery.dataPoints.length != 0 ? dataQuery : new Error('No data');
+
     })
     .catch(function (err: any) {
       console.error(
@@ -147,14 +149,15 @@ async function GoogleTrendsWithOneDay(keyword: string, startTime: any) {
     startTime: new Date(startTime),
     timezone: 7,
     geo: "TH",
-    property: "youtube",
+    property: "",
     granularTimeResolution: true,
   };
+
+  const dataQuery = { dataPoints: [{}], relatedQueries: [] };
 
   const dataFormatted = await googleTrends
     .interestOverTime(query)
     .then(function (results: any) {
-      const dataQuery = { dataPoints: [{}], relatedQueries: [] };
       var resultsJSON = JSON.parse(results);
 
       var data = resultsJSON["default"];
