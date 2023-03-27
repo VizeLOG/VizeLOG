@@ -25,38 +25,6 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
-    - image: vizelog/instagramservice
-      context: instagramservice
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "src/**/*.ts"
-            dest: .
-    - image: vizelog/facebookservice
-      context: facebookservice
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "src/**/*.ts"
-            dest: .
-    - image: vizelog/tiktokservice
-      context: tiktokservice
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "src/**/*.ts"
-            dest: .
-    - image: vizelog/twitterservice
-      context: twitterservice
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "src/**/*.ts"
-            dest: .
     - image: vizelog/googleservice
       context: googleservice
       docker:

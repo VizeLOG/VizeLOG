@@ -3,35 +3,41 @@ const googleTrends = require("google-trends-api");
 
 const router = express.Router();
 
-var dateToday = new Date();
-
-const thirtyDaysAgo = new Date(dateToday.getTime() - 30 * 24 * 60 * 60 * 1000);
-const sevenDaysAgo = new Date(dateToday.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-const getYearNow = dateToday.getFullYear();
-const getMonthNow = dateToday.getMonth() + 1;
-const getDateNow = dateToday.getDate();
-
-const getYear_start30 = thirtyDaysAgo.getFullYear();
-const getMonth_start30 = thirtyDaysAgo.getMonth() + 1;
-const getDate_start30 = thirtyDaysAgo.getDate();
-
-const getYear_start7 = sevenDaysAgo.getFullYear();
-const getMonth_start7 = sevenDaysAgo.getMonth() + 1;
-const getDate_start7 = sevenDaysAgo.getDate();
-
-const get_24_hoursAgo = Date.now() - 24 * 60 * 60 * 1000;
-
-const Date_now_formatted = getYearNow + "-" + getMonthNow + "-" + getDateNow;
-const Date_30_ago_formatted =
-  getYear_start30 + "-" + getMonth_start30 + "-" + getDate_start30;
-const Date_7_ago_formatted =
-  getYear_start7 + "-" + getMonth_start7 + "-" + getDate_start7;
-
 router.get(
   "/api/youtube/search/trend/:keyword",
   async (req: Request, res: Response) => {
     const keyword = req.params.keyword;
+
+    var dateToday = new Date();
+
+    const thirtyDaysAgo = new Date(
+      dateToday.getTime() - 30 * 24 * 60 * 60 * 1000
+    );
+    
+    const sevenDaysAgo = new Date(
+      dateToday.getTime() - 7 * 24 * 60 * 60 * 1000
+    );
+
+    const getYearNow = dateToday.getFullYear();
+    const getMonthNow = dateToday.getMonth() + 1;
+    const getDateNow = dateToday.getDate();
+
+    const getYear_start30 = thirtyDaysAgo.getFullYear();
+    const getMonth_start30 = thirtyDaysAgo.getMonth() + 1;
+    const getDate_start30 = thirtyDaysAgo.getDate();
+
+    const getYear_start7 = sevenDaysAgo.getFullYear();
+    const getMonth_start7 = sevenDaysAgo.getMonth() + 1;
+    const getDate_start7 = sevenDaysAgo.getDate();
+
+    const get_24_hoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+
+    const Date_now_formatted =
+      getYearNow + "-" + getMonthNow + "-" + getDateNow;
+    const Date_30_ago_formatted =
+      getYear_start30 + "-" + getMonth_start30 + "-" + getDate_start30;
+    const Date_7_ago_formatted =
+      getYear_start7 + "-" + getMonth_start7 + "-" + getDate_start7;
 
     const showVideoYoutubeByKeyword_30D = await GoogleTrendsWithDays(
       keyword,
@@ -76,8 +82,10 @@ router.get(
       showVideoYoutubeByHashtag_1D instanceof Error
     ) {
       res.sendStatus(404);
-      throw new Error();
+      // throw new Error();
     }
+
+    console.log(keyword + " publish");
 
     res.send({
       youtubekeyword30d: showVideoYoutubeByKeyword_30D,
@@ -128,7 +136,9 @@ async function GoogleTrendsWithDays(
 
       dataQuery.dataPoints.shift();
 
-      return dataQuery.dataPoints.length != 0 ? dataQuery : new Error('No data');
+      return dataQuery.dataPoints.length != 0
+        ? dataQuery
+        : new Error("No data");
     })
     .catch(function (err: any) {
       console.error(
@@ -169,7 +179,9 @@ async function GoogleTrendsWithOneDay(keyword: string, startTime: any) {
 
       dataQuery.dataPoints.shift();
 
-      return dataQuery.dataPoints.length != 0 ? dataQuery : new Error('No data');
+      return dataQuery.dataPoints.length != 0
+        ? dataQuery
+        : new Error("No data");
     })
     .catch(function (err: any) {
       console.error(
