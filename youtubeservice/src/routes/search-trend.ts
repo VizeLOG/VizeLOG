@@ -115,7 +115,7 @@ async function GoogleTrendsWithDays(
   const dataFormatted = await googleTrends
     .interestOverTime(query)
     .then(function (results: any) {
-      const dataQuery = { dataPoints: [{}], relatedQueries: [] };
+      const dataQuery = { dataPoints: [{}] };
       var resultsJSON = JSON.parse(results);
 
       var data = resultsJSON["default"];
@@ -164,7 +164,7 @@ async function GoogleTrendsWithOneDay(keyword: string, startTime: any) {
   const dataFormatted = await googleTrends
     .interestOverTime(query)
     .then(function (results: any) {
-      const dataQuery = { dataPoints: [{}], relatedQueries: [] };
+      const dataQuery = { dataPoints: [{}] };
       var resultsJSON = JSON.parse(results);
 
       var data = resultsJSON["default"];

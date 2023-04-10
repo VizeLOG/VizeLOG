@@ -7,7 +7,7 @@ router.get(
   "/api/google/search/trend/:keyword",
   async (req: Request, res: Response) => {
     const keyword = req.params.keyword;
-    
+
     var dateToday = new Date();
 
     const thirtyDaysAgo = new Date(
@@ -73,13 +73,37 @@ router.get(
       get_24_hoursAgo
     );
 
+    const showRelatedQueriesGoogleByKeyword_30D =
+      await GoogleRelatedQueriesWithDay(
+        keyword,
+        Date_30_ago_formatted,
+        Date_now_formatted
+      );
+
+    const showRelatedQueriesGoogleByKeyword_7D =
+      await GoogleRelatedQueriesWithDay(
+        keyword,
+        Date_7_ago_formatted,
+        Date_now_formatted
+      );
+
+    const showRelatedQueriesGoogleByKeyword_1D =
+      await GoogleRelatedQueriesWithDay(
+        keyword,
+        get_24_hoursAgo,
+        Date_now_formatted
+      );
+
     if (
       showTrendGoogleByKeyword_30D instanceof Error &&
       showTrendGoogleByKeyword_7D instanceof Error &&
       showTrendGoogleByKeyword_1D instanceof Error &&
       showTrendGoogleByHashtag_30D instanceof Error &&
       showTrendGoogleByHashtag_7D instanceof Error &&
-      showTrendGoogleByHashtag_1D instanceof Error
+      showTrendGoogleByHashtag_1D instanceof Error &&
+      showRelatedQueriesGoogleByKeyword_30D instanceof Error &&
+      showRelatedQueriesGoogleByKeyword_7D instanceof Error &&
+      showRelatedQueriesGoogleByKeyword_1D instanceof Error
     ) {
       res.sendStatus(404);
       // throw new Error();
@@ -93,6 +117,9 @@ router.get(
       googlehashtag30d: showTrendGoogleByHashtag_30D,
       googlehashtag7d: showTrendGoogleByHashtag_7D,
       googlehashtag1d: showTrendGoogleByHashtag_1D,
+      googlerelatedqueries30d: showRelatedQueriesGoogleByKeyword_30D,
+      googlerelatedqueries7d: showRelatedQueriesGoogleByKeyword_7D,
+      googlerelatedqueries1d: showRelatedQueriesGoogleByKeyword_1D,
     });
   }
 );
@@ -111,7 +138,7 @@ async function GoogleTrendsWithDays(
     property: "",
   };
 
-  const dataQuery = { dataPoints: [{}], relatedQueries: [] };
+  const dataQuery = { dataPoints: [{}] };
 
   const dataFormatted = await googleTrends
     .interestOverTime(query)
@@ -161,7 +188,7 @@ async function GoogleTrendsWithOneDay(keyword: string, startTime: any) {
     granularTimeResolution: true,
   };
 
-  const dataQuery = { dataPoints: [{}], relatedQueries: [] };
+  const dataQuery = { dataPoints: [{}] };
 
   const dataFormatted = await googleTrends
     .interestOverTime(query)
@@ -183,6 +210,65 @@ async function GoogleTrendsWithOneDay(keyword: string, startTime: any) {
       return dataQuery.dataPoints.length != 0
         ? dataQuery
         : new Error("No data");
+    })
+    .catch(function (err: any) {
+      console.error(
+        "Oh no there was an error, double check your proxy settings",
+        err
+      );
+      throw new Error(err);
+    });
+
+  return dataFormatted;
+}
+
+async function GoogleRelatedQueriesWithDay(
+  keyword: string,
+  startTime: any,
+  endTime: any
+) {
+  let query = {
+    keyword: keyword,
+    startTime: new Date(startTime),
+    endTime: new Date(endTime),
+    timezone: 7,
+    hl: "ti",
+    geo: "TH",
+  };
+
+  const dataQuery = { metaData: [{}] };
+
+  const dataFormatted = await googleTrends
+    .relatedQueries(query)
+    .then(function (results: any) {
+      var resultsJSON = JSON.parse(results);
+
+      var data = resultsJSON["default"];
+      var rankedList = data["rankedList"]; // array of ranked List
+
+      // May be they have two array
+      // 1st for Related value 1 - 100
+      // and 2nd for weight value
+
+      // Catch Error
+      if (rankedList.length > 0) {
+        for (let index = 0; index < rankedList.length; index++) {
+          const elementRankedKeyword = rankedList[index].rankedKeyword;
+
+          // only need 1st related value
+          if (index === 0) {
+            elementRankedKeyword.forEach(function (rankedKeywordItem: any) {
+              dataQuery.metaData.push({
+                query: `${rankedKeywordItem.query}`,
+                value: parseInt(`${rankedKeywordItem.value}`),
+              });
+            });
+          }
+          dataQuery.metaData.shift();
+        }
+      }
+
+      return dataQuery.metaData.length != 0 ? dataQuery : new Error("No data");
     })
     .catch(function (err: any) {
       console.error(
