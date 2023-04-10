@@ -94,6 +94,27 @@ router.get(
         Date_now_formatted
       );
 
+    const showRelatedTopicsGoogleByKeyword_30D =
+      await GoogleRelatedTopicsWithDay(
+        keyword,
+        Date_30_ago_formatted,
+        Date_now_formatted
+      );
+
+    const showRelatedTopicsGoogleByKeyword_7D =
+      await GoogleRelatedTopicsWithDay(
+        keyword,
+        Date_7_ago_formatted,
+        Date_now_formatted
+      );
+
+    const showRelatedTopicsGoogleByKeyword_1D =
+      await GoogleRelatedTopicsWithDay(
+        keyword,
+        get_24_hoursAgo,
+        Date_now_formatted
+      );
+
     if (
       showTrendGoogleByKeyword_30D instanceof Error &&
       showTrendGoogleByKeyword_7D instanceof Error &&
@@ -103,7 +124,10 @@ router.get(
       showTrendGoogleByHashtag_1D instanceof Error &&
       showRelatedQueriesGoogleByKeyword_30D instanceof Error &&
       showRelatedQueriesGoogleByKeyword_7D instanceof Error &&
-      showRelatedQueriesGoogleByKeyword_1D instanceof Error
+      showRelatedQueriesGoogleByKeyword_1D instanceof Error &&
+      showRelatedTopicsGoogleByKeyword_30D instanceof Error &&
+      showRelatedTopicsGoogleByKeyword_7D instanceof Error &&
+      showRelatedTopicsGoogleByKeyword_1D instanceof Error
     ) {
       res.sendStatus(404);
       // throw new Error();
@@ -120,6 +144,9 @@ router.get(
       googlerelatedqueries30d: showRelatedQueriesGoogleByKeyword_30D,
       googlerelatedqueries7d: showRelatedQueriesGoogleByKeyword_7D,
       googlerelatedqueries1d: showRelatedQueriesGoogleByKeyword_1D,
+      googlerelatedtopics30d: showRelatedTopicsGoogleByKeyword_30D,
+      googlerelatedtopics7d: showRelatedTopicsGoogleByKeyword_7D,
+      googlerelatedtopics1d: showRelatedTopicsGoogleByKeyword_1D,
     });
   }
 );
@@ -262,6 +289,66 @@ async function GoogleRelatedQueriesWithDay(
                 query: `${rankedKeywordItem.query}`,
                 value: parseInt(`${rankedKeywordItem.value}`),
               });
+            });
+          }
+          dataQuery.metaData.shift();
+        }
+      }
+
+      return dataQuery.metaData.length != 0 ? dataQuery : new Error("No data");
+    })
+    .catch(function (err: any) {
+      console.error(
+        "Oh no there was an error, double check your proxy settings",
+        err
+      );
+      throw new Error(err);
+    });
+
+  return dataFormatted;
+}
+
+async function GoogleRelatedTopicsWithDay(
+  keyword: string,
+  startTime: any,
+  endTime: any
+) {
+  let query = {
+    keyword: keyword,
+    startTime: new Date(startTime),
+    endTime: new Date(endTime),
+    timezone: 7,
+    hl: "ti",
+    geo: "TH",
+  };
+
+  const dataQuery = { metaData: [{}] };
+
+  const dataFormatted = await googleTrends
+    .relatedTopics(query)
+    .then(function (results: any) {
+      var resultsJSON = JSON.parse(results);
+
+      var data = resultsJSON["default"];
+      var rankedList = data["rankedList"]; // array of ranked List
+
+      // May be they have two array
+      // 1st for Related value 1 - 100
+      // and 2nd for weight value
+
+      // Catch Error
+      if (rankedList.length > 0) {
+        for (let index = 0; index < rankedList.length; index++) {
+          const elementRankedKeyword = rankedList[index].rankedKeyword;
+
+          // only need 1st related value
+          if (index === 0) {
+            elementRankedKeyword.forEach(function (rankedKeywordItem: any) {
+              dataQuery.metaData.push({
+                query: `${rankedKeywordItem.topic.title}`,
+                value: parseInt(`${rankedKeywordItem.value}`),
+              });
+              
             });
           }
           dataQuery.metaData.shift();
