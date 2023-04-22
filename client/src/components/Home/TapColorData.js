@@ -1,11 +1,10 @@
 import YoutubeLogo2 from "../../images/YoutubeLogo2.png";
-import facebookLogo2 from "../../images/facebookLogo2.png";
 import googleLogo from "../../images/googleLogo.png";
 
 const TapColorData = () => {
   return (
     <div className="">
-      <div className="flex mt-[20px] bg-[#88c7ff30] w-min lg:mx-[20px] border-2">
+      <div className="flex mt-[20px] bg-[#1B0A1670] w-min lg:mx-[20px] border-2 border-[#ffffff87]">
         <div className="flex hover:bg-[#ffffff50] w-max py-[5px] px-[5px]  transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-105">
           <img src={YoutubeLogo2} className="w-[40px] h-[26px]" />
           <h3 className="text-[#fff] hover:text-[#33241a]">&nbsp;Youtube</h3>

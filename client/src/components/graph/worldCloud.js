@@ -1,10 +1,9 @@
 import React from "react";
-import { render } from "react-dom";
 import WordCloud from "react-d3-cloud";
 import { scaleOrdinal } from "d3-scale";
 import { schemeCategory10 } from "d3-scale-chromatic";
 
-const WorldCloud = () => {
+const WorldCloud = (props) => {
   const data = [
     { text: "Hey", value: 1000 },
     { text: "lol", value: 200 },
