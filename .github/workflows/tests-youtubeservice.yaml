@@ -1,6 +1,9 @@
 name: tests-youtubeservice
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+      - 'youtubeservice/**'
 
 jobs:
   build:
