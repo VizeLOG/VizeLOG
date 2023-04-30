@@ -60,12 +60,12 @@ const BodyHomepage = (props) => {
   const fetchHandler = async () => {
     // YouTube Response
     const youtubeResponse = await axios.get(
-      `/api/youtube/search/trend/${props.searchTextShowInbody}`
+      `http://www.vizelog-app.space/api/youtube/search/trend/${props.searchTextShowInbody}`
     );
 
     // Google Response
     const googleResponse = await axios.get(
-      `/api/google/search/trend/${props.searchTextShowInbody}`
+      `http://www.vizelog-app.space/api/google/search/trend/${props.searchTextShowInbody}`
     );
 
     // Line Graph Generate
