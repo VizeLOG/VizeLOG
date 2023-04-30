@@ -6,11 +6,10 @@ import BodyHomepage from "./BodyHomepage";
 function HeaderHomepage() {
   const [searchText, setSearchText] = useState("");
   const [toSearch, setToSearch] = useState(false);
-  const d = new Date();
+
   const hours = 20;
   const search = () => {
     if (searchText.trim().length != 0) {
-      console.log(searchText);
       setToSearch(true);
     }
   };
@@ -18,17 +17,17 @@ function HeaderHomepage() {
   return (
     <div>
       <div className="h-[100px] lg:h-[130px]  bg-gradient-to-r from-[#0E1C34] via-[#030C1C] to-[#444266] flex shadow-lg ">
-        <div class=" shadow  p-4 max-w-sm w-[270px] lg:w-[330px] 2xl:w-full mx-auto">
-          <div class="animate-pulse ">
-            <div class="">
+        <div className=" shadow  p-4 max-w-sm w-[270px] lg:w-[330px] 2xl:w-full mx-auto">
+          <div className="animate-pulse ">
+            <div className="">
               <h1 className="text-3xl lg:text-5xl font-black pt-[10px] lg:pt-[20px] ml-[20px] lg:ml-[30px] w-full lg:w-[260px] flex  items-center text-[#fff]">
                 VizeLOG
               </h1>
             </div>
           </div>
-          <div class="flex justify-center -space-x-12 ml-[100px]">
-            <div class="mix-blend-multiply bg-blue-400 w-[30px] h-[10px]"></div>
-            <div class="mix-blend-multiply bg-pink-400 w-[30px] h-[10px]"></div>
+          <div className="flex justify-center -space-x-12 ml-[100px]">
+            <div className="mix-blend-multiply bg-blue-400 w-[30px] h-[10px]"></div>
+            <div className="mix-blend-multiply bg-pink-400 w-[30px] h-[10px]"></div>
           </div>
         </div>
 

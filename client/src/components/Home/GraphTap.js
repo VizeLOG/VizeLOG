@@ -9,8 +9,6 @@ import LineGraphOneDay from "../graph/LineGraphOneDay";
 const GraphTap = (props) => {
   //select graph to show in body
 
-
-  
   return (
     <div className="flex">
       <div className="h-full ">

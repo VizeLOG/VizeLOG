@@ -6,7 +6,7 @@ import axios from "axios";
 import Overview from "../graph/Overview";
 
 const BodyHomepage = (props) => {
-  const d = new Date();
+
   const hours = 2;
 
   const [lineCheckClick, setLineCheckClick] = useState(true);
@@ -16,8 +16,7 @@ const BodyHomepage = (props) => {
   const [hashtagCheckClick, sethashtagCheckClick] = useState(false);
 
   const [sendCreateGraphText, setsendCreateGraphText] = useState("LG");
-  const [sendCreateGraphDataType, setsendCreateGraphTextDataType] =
-    useState("SD");
+  const [sendCreateGraphDataType, setsendCreateGraphTextDataType] = useState("SD");
   const [sendCreatePeriod, setsendsendCreatePeriod] = useState("30D");
 
   // Line Graph Data Fetching
@@ -39,6 +38,19 @@ const BodyHomepage = (props) => {
   const [BarChartSearch30D, setBarChartSearch30D] = useState([]);
   const [BarChartSearch1W, setBarChartSearch1W] = useState([]);
 
+  // Word Cloud Data Fetching
+  // 30D
+  const [dataToMakeGraphWordCloud30D, setDataToMakeGraphWordCloud30D] = useState([]);
+  const [dataToMakeOverviewWordCloud30D, setDataToMakeOverviewWordCloud30D] = useState([]);
+  const [dataToMakeGraphWordCloud1W, setDataToMakeGraphWordCloud1W] = useState([]);
+  const [dataToMakeOverviewWordCloud1W, setDataToMakeOverviewWordCloud1W] = useState([]);
+  const [dataToMakeOverviewGraphHashtag30D, setDataToMakeOverviewGraphHashtag30D] = useState([]);
+  const [dataToMakeOverviewGraphHashtag1W, setDataToMakeOverviewGraphHashtag1W] = useState([]);
+
+  // Overview data
+  const [dataToMakeOverviewGraphSearch30D, setDataToMakeOverviewGraphSearch30D] = useState([]);
+  const [dataToMakeOverviewGraphSearch1W, setDataToMakeOverviewGraphSearch1W] = useState([]);
+
   const SelectGraph = () => {
     if (sendCreateGraphText != "") {
       console.log({ sendCreateGraphText });
@@ -50,12 +62,26 @@ const BodyHomepage = (props) => {
     const youtubeResponse = await axios.get(
       `/api/youtube/search/trend/${props.searchTextShowInbody}`
     );
-    console.log(youtubeResponse.data);
 
-    // Bar Chart Generate
+    // Google Response
+    const googleResponse = await axios.get(
+      `/api/google/search/trend/${props.searchTextShowInbody}`
+    );
+
+    // Line Graph Generate
 
     // loop of 30 Days Youtube keyword
-    if (youtubeResponse.data.youtubekeyword30d.dataPoints != undefined) {
+    if (JSON.stringify(youtubeResponse.data.youtubekeyword30d) !== '{}') {
+      
+      var haveGoogleData = false;
+      setDataToMakeOverviewGraphSearch30D([]);
+
+      if (JSON.stringify(googleResponse.data.googlekeyword30d) !== '{}' ) {
+        if (googleResponse.data.googlekeyword30d.dataPoints.length === youtubeResponse.data.youtubekeyword30d.dataPoints.length) {
+          haveGoogleData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < youtubeResponse.data.youtubekeyword30d.dataPoints.length;
@@ -72,14 +98,45 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+        
+        // Overview Line Graph
+        if (haveGoogleData) {
+          setDataToMakeOverviewGraphSearch30D((youtubeDataSearch30D) => [
+            ...youtubeDataSearch30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: googleResponse.data.googlekeyword30d.dataPoints[index].y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphSearch30D((youtubeDataSearch30D) => [
+            ...youtubeDataSearch30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: `No Data`,
+            },
+          ]);
+        }
+        
       }
     } else {
-      console.log("pass");
       setYoutubeDataSearch30D([]);
     }
 
     // loop of 30 Days Youtube Hashtag
-    if (youtubeResponse.data.youtubehashtag30d.dataPoints != undefined) {
+    if (JSON.stringify(youtubeResponse.data.youtubehashtag30d) !== '{}') {
+           
+      var haveGoogleData = false;
+      setDataToMakeOverviewGraphHashtag30D([]);
+
+      if (JSON.stringify(googleResponse.data.googlehashtag30d) !== '{}' ) {
+        if (googleResponse.data.googlehashtag30d.dataPoints.length === youtubeResponse.data.youtubehashtag30d.dataPoints.length) {
+          haveGoogleData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < youtubeResponse.data.youtubehashtag30d.dataPoints.length;
@@ -95,14 +152,45 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+
+        // Overview Line Graph                
+        if (haveGoogleData) {
+          setDataToMakeOverviewGraphHashtag30D((youtubeDataHashtag30D) => [
+            ...youtubeDataHashtag30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: googleResponse.data.googlehashtag30d.dataPoints[index].y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphHashtag30D((youtubeDataHashtag30D) => [
+            ...youtubeDataHashtag30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: `No Data`,
+            },
+          ]);
+        }
+
       }
     } else {
-      console.log("pass");
       setYoutubeDataHashtag30D([]);
     }
 
     // loop of 7 Days Youtube keyword
-    if (youtubeResponse.data.youtubekeyword7d.dataPoints != undefined) {
+    if (JSON.stringify(youtubeResponse.data.youtubekeyword7d) !== '{}') {
+            
+      var haveGoogleData = false;
+      setDataToMakeOverviewGraphSearch1W([]);
+
+      if (JSON.stringify(googleResponse.data.googlekeyword7d) !== '{}' ) {
+        if (googleResponse.data.googlekeyword7d.dataPoints.length === youtubeResponse.data.youtubekeyword7d.dataPoints.length) {
+          haveGoogleData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < youtubeResponse.data.youtubekeyword7d.dataPoints.length;
@@ -118,14 +206,45 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+
+        // Overview Line Graph
+        if (haveGoogleData) {
+          setDataToMakeOverviewGraphSearch1W((youtubeDataSearch7D) => [
+            ...youtubeDataSearch7D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: googleResponse.data.googlekeyword7d.dataPoints[index].y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphSearch1W((youtubeDataSearch7D) => [
+            ...youtubeDataSearch7D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: `No Data`,
+            },
+          ]);
+        }
+       
       }
     } else {
-      console.log("pass");
       setYoutubeDataSearch1W([]);
     }
 
     // loop of 7 Days Youtube Hashtag
-    if (youtubeResponse.data.youtubehashtag7d.dataPoints != undefined) {
+    if (JSON.stringify(youtubeResponse.data.youtubehashtag7d) !== '{}') {
+                  
+      var haveGoogleData = false;
+      setDataToMakeOverviewGraphHashtag1W([]);
+
+      if (JSON.stringify(googleResponse.data.googlehashtag7d) !== '{}' ) {
+        if (googleResponse.data.googlehashtag7d.dataPoints.length === youtubeResponse.data.youtubehashtag7d.dataPoints.length) {
+          haveGoogleData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < youtubeResponse.data.youtubehashtag7d.dataPoints.length;
@@ -141,20 +260,47 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+
+        // Overview Line Graph
+        if (haveGoogleData) {
+          setDataToMakeOverviewGraphHashtag1W((youtubeDataHashtag7D) => [
+            ...youtubeDataHashtag7D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: googleResponse.data.googlehashtag7d.dataPoints[index].y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphHashtag1W((youtubeDataHashtag7D) => [
+            ...youtubeDataHashtag7D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: element.y,
+              numG: `No Data`,
+            },
+          ]);
+        }
+ 
       }
     } else {
-      console.log("pass");
       setYoutubeDataHashtag1W([]);
     }
 
-    // Google Response
-    const googleResponse = await axios.get(
-      `/api/google/search/trend/${props.searchTextShowInbody}`
-    );
-    console.log(googleResponse.data);
 
+    ///////// Google Line Graph ////////
     // loop of 30 Days Google keyword
-    if (googleResponse.data.googlekeyword30d.dataPoints != undefined) {
+    if (JSON.stringify(googleResponse.data.googlekeyword30d) !== '{}') {
+            
+      var haveYouTubeData = false;
+      setDataToMakeOverviewGraphSearch30D([]);
+
+      if (JSON.stringify(youtubeResponse.data.youtubekeyword30d) !== '{}' ) {
+        if (googleResponse.data.googlekeyword30d.dataPoints.length === youtubeResponse.data.youtubekeyword30d.dataPoints.length) {
+          haveYouTubeData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < googleResponse.data.googlekeyword30d.dataPoints.length;
@@ -170,14 +316,45 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+         
+        // Overview Line Graph
+        if (haveYouTubeData) {
+          setDataToMakeOverviewGraphSearch30D((googleDataSearch30D) => [
+            ...googleDataSearch30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: youtubeResponse.data.youtubekeyword30d.dataPoints[index].y,
+              numG: element.y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphSearch30D((googleDataSearch30D) => [
+            ...googleDataSearch30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: `No Data`,
+              numG: youtubeResponse.data.youtubekeyword30d.dataPoints[index].y,
+            },
+          ]);
+        }
+ 
       }
     } else {
-      console.log("pass");
       setGoogleDataSearchLine30D([]);
     }
 
     // loop of 30 Days Google Hashtag
-    if (googleResponse.data.googlehashtag30d.dataPoints != undefined) {
+    if (JSON.stringify(googleResponse.data.googlehashtag30d) !== '{}') {
+                  
+      var haveYouTubeData = false;
+      setDataToMakeOverviewGraphHashtag30D([]);
+
+      if (JSON.stringify(youtubeResponse.data.youtubehashtag30d) !== '{}' ) {
+        if (googleResponse.data.googlehashtag30d.dataPoints.length === youtubeResponse.data.youtubehashtag30d.dataPoints.length) {
+          haveYouTubeData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < googleResponse.data.googlehashtag30d.dataPoints.length;
@@ -193,14 +370,45 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+            
+        // Overview Line Graph
+        if (haveYouTubeData) {
+          setDataToMakeOverviewGraphHashtag30D((googleDataHashtag30D) => [
+            ...googleDataHashtag30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: youtubeResponse.data.youtubehashtag30d.dataPoints[index].y,
+              numG: element.y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphHashtag30D((googleDataHashtag30D) => [
+            ...googleDataHashtag30D,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: `No Data`,
+              numG: element.y,
+            },
+          ]);
+        }
+ 
       }
     } else {
-      console.log("pass");
       setGoogleDataHashtagLine30D([]);
     }
 
     // loop of 7 Days Google keyword
-    if (googleResponse.data.googlekeyword7d.dataPoints != undefined) {
+    if (JSON.stringify(googleResponse.data.googlekeyword7d) !== '{}') {
+                        
+      var haveYouTubeData = false;
+      setDataToMakeOverviewGraphSearch1W([]);
+
+      if (JSON.stringify(youtubeResponse.data.youtubekeyword7d) !== '{}' ) {
+        if (googleResponse.data.googlekeyword7d.dataPoints.length === youtubeResponse.data.youtubekeyword7d.dataPoints.length) {
+          haveYouTubeData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < googleResponse.data.googlekeyword7d.dataPoints.length;
@@ -216,14 +424,45 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+         
+        // Overview Line Graph
+        if (haveYouTubeData) {
+          setDataToMakeOverviewGraphSearch1W((googleDataSearch1W) => [
+            ...googleDataSearch1W,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: youtubeResponse.data.youtubekeyword7d.dataPoints[index].y,
+              numG: element.y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphSearch1W((googleDataSearch1W) => [
+            ...googleDataSearch1W,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: `No Data`,
+              numG: element.y,
+            },
+          ]);
+        }
+
       }
     } else {
-      console.log("pass");
       setGoogleDataSearchLine1W([]);
     }
 
     // loop of 7 Days Google Hashtag
-    if (googleResponse.data.googlehashtag7d.dataPoints != undefined) {
+    if (JSON.stringify(googleResponse.data.googlehashtag7d) !== '{}') {
+                              
+      var haveYouTubeData = false;
+      setDataToMakeOverviewGraphHashtag1W([]);
+
+      if (JSON.stringify(youtubeResponse.data.youtubehashtag7d) !== '{}' ) {
+        if (googleResponse.data.googlehashtag7d.dataPoints.length === youtubeResponse.data.youtubehashtag7d.dataPoints.length) {
+          haveYouTubeData = true;
+        }
+      }
+
       for (
         let index = 0;
         index < googleResponse.data.googlehashtag7d.dataPoints.length;
@@ -239,9 +478,30 @@ const BodyHomepage = (props) => {
             y: element.y,
           },
         ]);
+        
+        // Overview Line Graph
+        if (haveYouTubeData) {
+          setDataToMakeOverviewGraphHashtag1W((googleDataHashtag1W) => [
+            ...googleDataHashtag1W,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: youtubeResponse.data.youtubehashtag7d.dataPoints[index].y,
+              numG: element.y,
+            },
+          ]);
+        } else {
+          setDataToMakeOverviewGraphHashtag1W((googleDataHashtag1W) => [
+            ...googleDataHashtag1W,
+            {
+              day: `${element.x.day}/${element.x.month + 1}`,
+              numY: `No Data`,
+              numG: element.y,
+            },
+          ]);
+        }
+
       }
     } else {
-      console.log("pass");
       setGoogleDataHashtagLine1W([]);
     }
 
@@ -249,14 +509,28 @@ const BodyHomepage = (props) => {
 
     // Bar Chart Generate
 
+    // Keyword 30 days
     if (
-      googleResponse.data.googlekeyword30d.dataPoints != undefined ||
-      youtubeResponse.data.youtubekeyword30d.dataPoints != undefined
+      JSON.stringify(googleResponse.data.googlekeyword30d) !== '{}' ||
+      JSON.stringify(youtubeResponse.data.youtubekeyword30d) !== '{}'
     ) {
-      const googleResponseLength =
-        googleResponse.data.googlekeyword30d.dataPoints.length || 0;
-      const youtubeResponseLength =
-        youtubeResponse.data.youtubekeyword30d.dataPoints.length || 0;
+      
+      var googleResponseLength = 0;
+      var youtubeResponseLength = 0;
+
+      if (JSON.stringify(googleResponse.data.googlekeyword30d) === "{}") {
+        googleResponseLength = 0;
+      } else {
+        googleResponseLength =
+          googleResponse.data.googlekeyword30d.dataPoints.length;
+      }
+
+      if (JSON.stringify(youtubeResponse.data.youtubekeyword30d) === "{}") {
+        youtubeResponseLength = 0;
+      } else {
+        youtubeResponseLength =
+          youtubeResponse.data.youtubekeyword30d.dataPoints.length;
+      }
 
       var checkValues = 0;
       var hadValues = false;
@@ -313,23 +587,38 @@ const BodyHomepage = (props) => {
       }
     }
 
+    // Keyword 7 days
     if (
-      googleResponse.data.googlekeyword7d.dataPoints != undefined ||
-      youtubeResponse.data.youtubekeyword7d.dataPoints != undefined
+      JSON.stringify(googleResponse.data.googlekeyword7d) !== "{}" ||
+      JSON.stringify(youtubeResponse.data.youtubekeyword7d) !== "{}"
     ) {
-      const googleResponseLength =
-        googleResponse.data.googlekeyword7d.dataPoints.length || 0;
-      const youtubeResponseLength =
-        youtubeResponse.data.youtubekeyword7d.dataPoints.length || 0;
+      
+      var googleResponseLength = 0;
+      var youtubeResponseLength = 0;
 
-      var checkValues = 0;
+      if (JSON.stringify(googleResponse.data.googlekeyword7d) === "{}") {
+        googleResponseLength = 0;
+      } else {
+        googleResponseLength =
+          googleResponse.data.googlekeyword7d.dataPoints.length;
+      }
+
+      if (JSON.stringify(youtubeResponse.data.youtubekeyword7d) === "{}") {
+        youtubeResponseLength = 0;
+      } else {
+        youtubeResponseLength =
+          youtubeResponse.data.youtubekeyword7d.dataPoints.length;
+      }
+
+      let checkValues = 0;
       var hadValues = false;
+
       if (googleResponseLength > 0) {
         hadValues = true;
         checkValues = googleResponseLength;
       }
 
-      if (youtubeResponseLength) {
+      if (youtubeResponseLength > 0) {
         hadValues = true;
         checkValues = youtubeResponseLength;
       }
@@ -378,18 +667,27 @@ const BodyHomepage = (props) => {
       }
     }
 
+    // Hashtag 30 days
     if (
-      googleResponse.data.googlehashtag30d.dataPoints != {} ||
-      youtubeResponse.data.yotubehashtag30d.dataPoints != {}
+      JSON.stringify(googleResponse.data.googlehashtag30d) !== "{}" ||
+      JSON.stringify(youtubeResponse.data.youtubehashtag30d) !== "{}"
     ) {
-      const googleResponseLength =
-        googleResponse.data.googlehashtag30d.dataPoints != {}
-          ? googleResponse.data.googlehashtag30d.dataPoints.length
-          : 0;
-      const youtubeResponseLength =
-        youtubeResponse.data.yotubehashtag30d.dataPoints != {}
-          ? youtubeResponse.data.yotubehashtag30d.dataPoints.length
-          : 0;
+      var googleResponseLength = 0;
+      var youtubeResponseLength = 0;
+
+      if (JSON.stringify(googleResponse.data.googlehashtag30d) === "{}") {
+        googleResponseLength = 0;
+      } else {
+        googleResponseLength =
+          googleResponse.data.googlehashtag30d.dataPoints.length;
+      }
+
+      if (JSON.stringify(youtubeResponse.data.youtubehashtag30d) === "{}") {
+        youtubeResponseLength = 0;
+      } else {
+        youtubeResponseLength =
+          youtubeResponse.data.youtubehashtag30d.dataPoints.length;
+      }
 
       var checkValues = 0;
       var hadValues = false;
@@ -405,9 +703,9 @@ const BodyHomepage = (props) => {
 
       if (hadValues) {
         for (let index = 0; index < checkValues; index++) {
-          if (youtubeResponse.data.yotubehashtag30d.dataPoints != {}) {
+          if (youtubeResponse.data.youtubehashtag30d.dataPoints != {}) {
             const elementYoutube =
-              youtubeResponse.data.yotubehashtag30d.dataPoints[index];
+              youtubeResponse.data.youtubehashtag30d.dataPoints[index];
 
             // Bar Chart
             setBarChartHashtag30D((BarChartHashtag30D) => [
@@ -448,14 +746,27 @@ const BodyHomepage = (props) => {
       }
     }
 
+    // Hashtag 7 days
     if (
-      googleResponse.data.googlehashtag7d.dataPoints != undefined ||
-      youtubeResponse.data.youtubehashtag7d.dataPoints != undefined
+      JSON.stringify(googleResponse.data.googlehashtag7d) !== "{}" ||
+      JSON.stringify(youtubeResponse.data.youtubehashtag7d) !== "{}"
     ) {
-      const googleResponseLength =
-        googleResponse.data.googlehashtag7d.dataPoints.length || 0;
-      const youtubeResponseLength =
-        youtubeResponse.data.youtubehashtag7d.dataPoints.length || 0;
+      var googleResponseLength = 0;
+      var youtubeResponseLength = 0;
+
+      if (JSON.stringify(googleResponse.data.googlehashtag7d) === "{}") {
+        googleResponseLength = 0;
+      } else {
+        googleResponseLength =
+          googleResponse.data.googlehashtag7d.dataPoints.length;
+      }
+
+      if (JSON.stringify(youtubeResponse.data.youtubehashtag7d) === "{}") {
+        youtubeResponseLength = 0;
+      } else {
+        youtubeResponseLength =
+          youtubeResponse.data.youtubehashtag7d.dataPoints.length;
+      }
 
       var checkValues = 0;
       var hadValues = false;
@@ -475,8 +786,8 @@ const BodyHomepage = (props) => {
             const elementYoutube =
               youtubeResponse.data.youtubehashtag7d.dataPoints[index];
             // Bar Chart
-            setBarChartSearch1W((BarChartSearch1W) => [
-              ...BarChartSearch1W,
+            setBarChartHashtag1W((BarChartHashtag1W) => [
+              ...BarChartHashtag1W,
               {
                 x: new Date(
                   elementYoutube.x.year,
@@ -494,8 +805,8 @@ const BodyHomepage = (props) => {
             const elementGoogle =
               googleResponse.data.googlehashtag7d.dataPoints[index];
             // Bar Chart
-            setBarChartSearch1W((BarChartSearch1W) => [
-              ...BarChartSearch1W,
+            setBarChartHashtag1W((BarChartHashtag1W) => [
+              ...BarChartHashtag1W,
               {
                 x: new Date(
                   elementGoogle.x.year,
@@ -513,6 +824,77 @@ const BodyHomepage = (props) => {
     }
 
     // End Of Bar Chart Generate
+
+    // Word Cloud Generate
+    // loop of 30 Days Google queries
+    if (JSON.stringify(googleResponse.data.googlerelatedqueries30d) !== "{}") {
+      
+      setDataToMakeOverviewWordCloud30D([]);
+
+      for (
+        let index = 0;
+        index < googleResponse.data.googlerelatedqueries30d.metaData.length;
+        index++
+      ) {
+        const element =
+          googleResponse.data.googlerelatedqueries30d.metaData[index];
+
+        //  Word Cloud text
+        setDataToMakeGraphWordCloud30D((googleDataWordCloud30D) => [
+          ...googleDataWordCloud30D,
+          {
+            text: element.query,
+            value: element.value,
+          },
+        ]);
+
+        // Word Cloud Overview
+        setDataToMakeOverviewWordCloud30D((dataElement) => [
+          ...dataElement,
+          {
+            text: element.query,
+            value: element.value,
+          },
+        ]);
+      }
+    } else {
+      setDataToMakeGraphWordCloud30D([]);
+    }
+
+    // loop of 7 Days Google queries
+    if (JSON.stringify(googleResponse.data.googlerelatedqueries7d) !== "{}") {
+
+      setDataToMakeOverviewWordCloud1W([]);
+
+      for (
+        let index = 0;
+        index < googleResponse.data.googlerelatedqueries7d.metaData.length;
+        index++
+      ) {
+        const element =
+          googleResponse.data.googlerelatedqueries7d.metaData[index];
+
+        //  Word Cloud text
+        setDataToMakeGraphWordCloud1W((googleDataWordCloud1W) => [
+          ...googleDataWordCloud1W,
+          {
+            text: element.query,
+            value: element.value,
+          },
+        ]);
+        
+        // Word Cloud Overview
+        setDataToMakeOverviewWordCloud1W((dataElement) => [
+          ...dataElement,
+          {
+            text: element.query,
+            value: element.value,
+          },
+        ]);
+      }
+    } else {
+      setDataToMakeGraphWordCloud1W([]);
+    }
   };
 
   // Graph Generate
@@ -522,67 +904,13 @@ const BodyHomepage = (props) => {
   const [dataTypeMakeGraphLine, setdataTypeMakeGraphLine] = useState(
     googleDataSearchLine30D
   );
+
   const dataSearch1D = [
     { x: new Date(0, 0, 0, 9, 10, 0, 0), y: 10.6 },
     { x: new Date(0, 0, 0, 19, 10, 0, 0), y: 12 },
     { x: new Date(0, 0, 0, 20, 10, 0, 0), y: 4.6 },
   ];
 
-  //Data To Make world cloud========================
-  const dataToMakeGraphWorddCloud30D = [
-    { text: "Hey", value: 1000 },
-    { text: "first impression", value: 800 },
-    { text: "very cool", value: 1000000 },
-    { text: "Hello world", value: 10 },
-    { text: "Kitty", value: 20000000 },
-    { text: "UFO", value: 7000 },
-    { text: "Youtube", value: 500 },
-    { text: "Facebook", value: 3000 },
-    { text: "IG", value: 23456 },
-    { text: "Tiktok", value: 789 },
-    { text: "T", value: 5678 },
-    { text: "Flowet", value: 5678 },
-    { text: "Heyc", value: 1000 },
-    { text: "lolc", value: 200 },
-    { text: "first impressionc", value: 800 },
-    { text: "very coolc", value: 1000000 },
-    { text: "Hello worldc", value: 10 },
-    { text: "Kittyc", value: 20000000 },
-    { text: "Hey", value: 1000 },
-    { text: "first impression", value: 800 },
-    { text: "very cool", value: 1000000 },
-    { text: "Hello world", value: 10 },
-    { text: "Kitty", value: 20000000 },
-    { text: "UFO", value: 7000 },
-    { text: "Youtube", value: 500 },
-    { text: "Facebook", value: 3000 },
-    { text: "IG", value: 23456 },
-    { text: "Tiktok", value: 789 },
-    { text: "T", value: 5678 },
-    { text: "Flowet", value: 5678 },
-    { text: "Heyc", value: 1000 },
-    { text: "lolc", value: 200 },
-    { text: "first impressionc", value: 800 },
-    { text: "very coolc", value: 1000000 },
-    { text: "Hello worldc", value: 10 },
-    { text: "Kittyc", value: 20000000 },
-  ];
-
-  const dataToMakeGraphWorddCloud1W = [
-    { text: "Hey", value: 1000 },
-    { text: "first impression", value: 800 },
-    { text: "very cool", value: 1000000 },
-    { text: "Hello world", value: 10 },
-    { text: "Kitty", value: 20000000 },
-    { text: "UFO", value: 7000 },
-    { text: "Youtube", value: 500 },
-    { text: "Facebook", value: 3000 },
-    { text: "IG", value: 23456 },
-    { text: "Tiktok", value: 789 },
-    { text: "T", value: 5678 },
-    { text: "Flowet", value: 5678 },
-    { text: "Heyc", value: 1000 },
-  ];
 
   //===============================================
   const SelectDataTypeMakeGraph = () => {
@@ -628,11 +956,11 @@ const BodyHomepage = (props) => {
       }
     } else if (sendCreateGraphText == "WC") {
       if (sendCreatePeriod == "30D") {
-        setdataTypeMakeGraph(dataToMakeGraphWorddCloud30D);
+        setdataTypeMakeGraph(dataToMakeGraphWordCloud30D);
       } else if (sendCreatePeriod == "1W") {
-        setdataTypeMakeGraph(dataToMakeGraphWorddCloud1W);
+        setdataTypeMakeGraph(dataToMakeGraphWordCloud1W);
       } else {
-        setdataTypeMakeGraph(dataToMakeGraphWorddCloud30D);
+        setdataTypeMakeGraph(dataToMakeGraphWordCloud30D);
       }
     }
   };
@@ -656,175 +984,6 @@ const BodyHomepage = (props) => {
   // ====================================================================================================================================
   // Overview
   const [overviewClick, setoverviewClick] = useState(false);
-  // const youtubeDataSearch1WTest = [
-  //   { x: new Date(2010, 0, 1), y: 50 },
-  //   { x: new Date(2010, 0, 2), y: 100 },
-  //   { x: new Date(2010, 0, 3), y: 110 },
-  //   { x: new Date(2010, 0, 4), y: 158 },
-  //   { x: new Date(2010, 0, 5), y: 34 },
-  //   { x: new Date(2010, 0, 6), y: 363 },
-  //   { x: new Date(2010, 0, 7), y: 247 },
-  // ];
-
-  // const googleDataSearchLine1WTest = [
-
-  //   { x: new Date(2010, 0, 1), y: 150 },
-  //   { x: new Date(2010, 0, 2), y: 260 },
-  //   { x: new Date(2010, 0, 3), y: 300 },
-  //   { x: new Date(2010, 0, 4), y: 208 },
-  //   { x: new Date(2010, 0, 5), y: 134 },
-  //   { x: new Date(2010, 0, 6), y: 263 },
-  //   { x: new Date(2010, 0, 7), y: 400 },
-  // ];
-
-  // const converGraphDataToOverviewData = (youtubeDataSearch1WTest,googleDataSearchLine1WTest) => {
-  //   var result = [];
-  //   for (let i = 0; i < 7; i++) {
-  //     var dY = youtubeDataSearch1WTest[i].x;
-  //     var dG = googleDataSearchLine1WTest[i].x;
-  //     if(dY == dG){
-  //       let totalNUmber = youtubeDataSearch1WTest.y + googleDataSearchLine1WTest.y;
-  //       let calDY = (youtubeDataSearch1WTest.y * 100) / totalNUmber;
-  //       let calDG = (googleDataSearchLine1WTest.y * 100) / totalNUmber;
-  //       result.push({day:dY , numY:calDY , numG:calDG})
-  //     }
-  //     dataToMakeOverviewGraphSearch30D = result;
-  //   }
-  // }
-  const dataToMakeOverviewGraphSearch30D = [
-    { day: 1, numY: 20, numG: 3200 },
-    { day: 2, numY: 45, numG: 29 },
-    { day: 3, numY: 32, numG: 41 },
-    { day: 4, numY: 12, numG: 26 },
-    { day: 5, numY: 20, numG: 32 },
-    { day: 6, numY: 45, numG: 29 },
-    { day: 7, numY: 32, numG: 41 },
-    { day: 8, numY: 12, numG: 26 },
-    { day: 9, numY: 20, numG: 32 },
-    { day: 10, numY: 45, numG: 29 },
-    { day: 11, numY: 32, numG: 41 },
-    { day: 12, numY: 12, numG: 26 },
-    { day: 13, numY: 20, numG: 32 },
-    { day: 14, numY: 45, numG: 29 },
-    { day: 15, numY: 32, numG: 41 },
-    { day: 16, numY: 12, numG: 26 },
-    { day: 17, numY: 20, numG: 32 },
-    { day: 18, numY: 45, numG: 29 },
-    { day: 19, numY: 32, numG: 41 },
-    { day: 20, numY: 12, numG: 26 },
-    { day: 21, numY: 20, numG: 32 },
-    { day: 22, numY: 45, numG: 29 },
-    { day: 23, numY: 32, numG: 41 },
-    { day: 24, numY: 12, numG: 26 },
-    { day: 25, numY: 32, numG: 41 },
-    { day: 26, numY: 12, numG: 26 },
-    { day: 27, numY: 20, numG: 32 },
-    { day: 28, numY: 45, numG: 29 },
-    { day: 29, numY: 32, numG: 41 },
-    { day: 30, numY: 12, numG: 26 },
-  ];
-
-  const dataToMakeOverviewGraphSearch1W = [
-    { day: 1, numY: 20, numG: 3200 },
-    { day: 2, numY: 45, numG: 29 },
-    { day: 3, numY: 32, numG: 41 },
-    { day: 4, numY: 12, numG: 26 },
-    { day: 5, numY: 20, numG: 32 },
-    { day: 6, numY: 45, numG: 29 },
-    { day: 7, numY: 32, numG: 41 },
-  ];
-
-  const dataToMakeOverviewGraphHashtag30D = [
-    { day: 1, numY: 20, numG: 32 },
-    { day: 2, numY: 45, numG: 29 },
-    { day: 3, numY: 32, numG: 41 },
-    { day: 4, numY: 12, numG: 26 },
-    { day: 5, numY: 20, numG: 32 },
-    { day: 6, numY: 45, numG: 29 },
-    { day: 7, numY: 32, numG: 41 },
-    { day: 8, numY: 12, numG: 26 },
-    { day: 9, numY: 20, numG: 32 },
-    { day: 10, numY: 45, numG: 29 },
-    { day: 11, numY: 32, numG: 41 },
-    { day: 12, numY: 12, numG: 26 },
-    { day: 13, numY: 20, numG: 32 },
-    { day: 14, numY: 45, numG: 29 },
-    { day: 15, numY: 32, numG: 41 },
-    { day: 16, numY: 12, numG: 26 },
-    { day: 17, numY: 20, numG: 32 },
-    { day: 18, numY: 45, numG: 29 },
-    { day: 19, numY: 32, numG: 41 },
-    { day: 20, numY: 12, numG: 26 },
-    { day: 21, numY: 20, numG: 32 },
-    { day: 22, numY: 45, numG: 29 },
-    { day: 23, numY: 32, numG: 41 },
-    { day: 24, numY: 12, numG: 26 },
-    { day: 25, numY: 32, numG: 41 },
-    { day: 26, numY: 12, numG: 26 },
-    { day: 27, numY: 20, numG: 32 },
-    { day: 28, numY: 45, numG: 29 },
-    { day: 29, numY: 32, numG: 41 },
-    { day: 30, numY: 12, numG: 26 },
-  ];
-
-  const dataToMakeOverviewGraphHashtag1W = [
-    { day: 1, numY: 20, numG: 32 },
-    { day: 2, numY: 45, numG: 29 },
-    { day: 3, numY: 32, numG: 41 },
-    { day: 4, numY: 12, numG: 26 },
-    { day: 5, numY: 20, numG: 32 },
-    { day: 6, numY: 45, numG: 29 },
-    { day: 7, numY: 32, numG: 41 },
-  ];
-
-  const dataToMakeOverviewWorddCloud30D = [
-    { text: "Hey", value: 1000 },
-    { text: "first impression", value: 800 },
-    { text: "very cool", value: 1000000 },
-    { text: "Hello world4", value: 10 },
-    { text: "Kitty", value: 20000000 },
-    { text: "UFO", value: 7000 },
-    { text: "Youtube", value: 500 },
-    { text: "Facebook", value: 3000 },
-    { text: "IG", value: 23456 },
-    { text: "Tiktok", value: 789 },
-    { text: "T", value: 5678 },
-    { text: "Flowet", value: 5678 },
-    { text: "Heyc", value: 1000 },
-    { text: "lolc", value: 200 },
-    { text: "first impressionc", value: 800 },
-    { text: "very coolc", value: 1000000 },
-    { text: "Hello worldc2", value: 10 },
-    { text: "Kittyc", value: 20000000 },
-    { text: "Hey", value: 1000 },
-    { text: "first impression", value: 800 },
-    { text: "very cool", value: 1000000 },
-    { text: "Hello world3", value: 10 },
-    { text: "Kitty", value: 20000000 },
-    { text: "UFO", value: 7000 },
-    { text: "Youtube", value: 500 },
-    { text: "Facebook", value: 3000 },
-    { text: "IG", value: 23456 },
-    { text: "Tiktok", value: 789 },
-    { text: "T", value: 5678 },
-    { text: "Flowet", value: 5678 },
-    { text: "Heyc", value: 1000 },
-    { text: "lolc", value: 200 },
-    { text: "first impressionc", value: 800 },
-    { text: "very coolc", value: 1000000 },
-    { text: "Hello worldc1", value: 10 },
-    { text: "Kittyc", value: 20000000 },
-  ];
-
-  const dataToMakeOverviewWorddCloud1W = [
-    { text: "Hey", value: 1000 },
-    { text: "first impression", value: 800 },
-    { text: "very cool", value: 1000000 },
-    { text: "Hello world", value: 10 },
-    { text: "Kitty", value: 20000000 },
-    { text: "UFO", value: 7000 },
-    { text: "Youtube", value: 500 },
-  ];
 
   const [dataToMakeOverview, setDataToMakeOverview] = useState(
     dataToMakeOverviewGraphSearch30D
@@ -835,7 +994,7 @@ const BodyHomepage = (props) => {
     let arr2 = [];
     var min = data[0];
     var pos;
-    var max = data[0]
+    var max = data[0];
     for (i = 0; i < arr1.length; i++) {
       if (max.value < arr1[i].value) max = arr1[i];
     }
@@ -853,26 +1012,23 @@ const BodyHomepage = (props) => {
       arr1[pos] = "x";
       min = max;
     }
-    arr2 = arr2.reverse()
+    arr2 = arr2.reverse();
     var arr3 = [];
     for (var k = 0; k < arr2.length; k++) {
-     var text = arr2[k].text;
-     var value = arr2[k].value;
-     var n = k+1;
-     arr3.push({num: n , text: text , value: value });
+      var text = arr2[k].text;
+      var value = arr2[k].value;
+      var n = k + 1;
+      arr3.push({ num: n, text: text, value: value });
     }
     return arr3;
   };
-
-  
 
   const CreateOverviewText = sendCreateGraphText;
   const CreateOverviewDataType = sendCreateGraphDataType;
   const CreatePeriod = sendCreatePeriod;
   const selectDataToMakeOverview = () => {
     // select and set data to sent to overview
-    
-    console.log({ CreatePeriod });
+
     if (CreateOverviewText == "LG" || CreateOverviewText == "BC") {
       if (CreateOverviewDataType == "SD") {
         if (CreatePeriod == "30D") {
@@ -889,13 +1045,13 @@ const BodyHomepage = (props) => {
       }
     } else if (CreateOverviewText == "WC") {
       if (CreatePeriod == "30D") {
-        var data = sortDataWorldCloud(dataToMakeOverviewWorddCloud30D);
+        var data = sortDataWorldCloud(dataToMakeOverviewWordCloud30D);
         setDataToMakeOverview(data);
       } else if (CreatePeriod == "1W") {
-        var data = sortDataWorldCloud(dataToMakeOverviewWorddCloud1W);
+        var data = sortDataWorldCloud(dataToMakeOverviewWordCloud1W);
         setDataToMakeOverview(data);
       } else {
-        var data = sortDataWorldCloud(dataToMakeOverviewWorddCloud30D);
+        var data = sortDataWorldCloud(dataToMakeOverviewWordCloud30D);
         setDataToMakeOverview(data);
       }
     }
@@ -923,8 +1079,8 @@ const BodyHomepage = (props) => {
               {/* //button zone */}
               <div className="2xl:flex pt-[40px] ">
                 <div className="flex justify-center -space-x-10 float-left ml-[10px] w-[60px]">
-                  <div class="">
-                    <div class="mix-blend-multiply bg-[#E94F4A50] rounded-md w-[25px] h-[25px]"></div>
+                  <div className="">
+                    <div className="mix-blend-multiply bg-[#E94F4A50] rounded-md w-[25px] h-[25px]"></div>
                   </div>
                   <img
                     src={Vector}
@@ -1031,7 +1187,7 @@ const BodyHomepage = (props) => {
 
               <div className="2xl:flex mt-[40px]">
                 <div className="flex justify-center -space-x-11  ml-[10px] w-[60px]">
-                  <div class="mix-blend-multiply bg-[#E94F4A50] rounded-md w-[30px] mt-[2px] h-[30px]"></div>
+                  <div className="mix-blend-multiply bg-[#E94F4A50] rounded-md w-[30px] mt-[2px] h-[30px]"></div>
 
                   <img
                     src={blogger}
@@ -1199,7 +1355,7 @@ const BodyHomepage = (props) => {
                           {props.searchTextShowInbody}
                         </h1>
                       </div>
-                      <div class="mix-blend-multiply bg-[#D8A6F120] w-[17px]"></div>
+                      <div className="mix-blend-multiply bg-[#D8A6F120] w-[17px]"></div>
                     </div>
                   </div>
                   <div className="grid grid-cols-6 ">
@@ -1225,9 +1381,9 @@ const BodyHomepage = (props) => {
                         ) : null}
 
                         {!(sendCreateGraphText == "WC") ? (
-                          <span class="relative flex h-3 w-3">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffffff] opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#E2F7FF]"></span>
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffffff] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E2F7FF]"></span>
                           </span>
                         ) : null}
 
@@ -1256,9 +1412,9 @@ const BodyHomepage = (props) => {
                             </div>
                           ) : null}
                         </div>
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffffff] opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#E6D3FF]"></span>
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffffff] opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E6D3FF]"></span>
                         </span>
 
                         <div className=" w-max   ml-[10px]">
@@ -1278,9 +1434,9 @@ const BodyHomepage = (props) => {
                             </div>
                           ) : null}
                         </div>
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffffff] opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#F7D0D0]"></span>
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffffff] opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F7D0D0]"></span>
                         </span>
                       </div>
                       <div className="w-full h-[2px] bg-[#ffffff70]"></div>

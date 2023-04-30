@@ -1,5 +1,4 @@
 import HeaderHomepage from "./headerHomepage";
-import BodyHomepage from "./BodyHomepage";
 
 function Homepage() {
   return (

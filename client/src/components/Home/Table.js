@@ -1,4 +1,3 @@
-import { padding } from '@mui/system';
 import React, { useState, useEffect } from 'react';
 import data from './data.json';
 

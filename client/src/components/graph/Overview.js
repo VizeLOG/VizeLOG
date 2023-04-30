@@ -7,7 +7,8 @@ import React from "react";
 const Overview = (props) => {
   
 
-  const dataToMakeOverview = props.dataOverview
+  const dataToMakeOverview = props.dataOverview;
+  
   return (
     <div className="ml-[17px]">
       {props.idG != "WC" ? (

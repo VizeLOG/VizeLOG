@@ -30,8 +30,6 @@ router.get(
     const getMonth_start7 = sevenDaysAgo.getMonth() + 1;
     const getDate_start7 = sevenDaysAgo.getDate();
 
-    const get_24_hoursAgo = Date.now() - 24 * 60 * 60 * 1000;
-
     const Date_now_formatted =
       getYearNow + "-" + getMonthNow + "-" + getDateNow;
     const Date_30_ago_formatted =
@@ -51,11 +49,6 @@ router.get(
       Date_now_formatted
     );
 
-    const showTrendGoogleByKeyword_1D = await GoogleTrendsWithOneDay(
-      keyword,
-      get_24_hoursAgo
-    );
-
     const showTrendGoogleByHashtag_30D = await GoogleTrendsWithDays(
       "#" + keyword,
       Date_30_ago_formatted,
@@ -66,11 +59,6 @@ router.get(
       "#" + keyword,
       Date_7_ago_formatted,
       Date_now_formatted
-    );
-
-    const showTrendGoogleByHashtag_1D = await GoogleTrendsWithOneDay(
-      "#" + keyword,
-      get_24_hoursAgo
     );
 
     const showRelatedQueriesGoogleByKeyword_30D =
@@ -87,47 +75,13 @@ router.get(
         Date_now_formatted
       );
 
-    const showRelatedQueriesGoogleByKeyword_1D =
-      await GoogleRelatedQueriesWithDay(
-        keyword,
-        get_24_hoursAgo,
-        Date_now_formatted
-      );
-
-    const showRelatedTopicsGoogleByKeyword_30D =
-      await GoogleRelatedTopicsWithDay(
-        keyword,
-        Date_30_ago_formatted,
-        Date_now_formatted
-      );
-
-    const showRelatedTopicsGoogleByKeyword_7D =
-      await GoogleRelatedTopicsWithDay(
-        keyword,
-        Date_7_ago_formatted,
-        Date_now_formatted
-      );
-
-    const showRelatedTopicsGoogleByKeyword_1D =
-      await GoogleRelatedTopicsWithDay(
-        keyword,
-        get_24_hoursAgo,
-        Date_now_formatted
-      );
-
     if (
       showTrendGoogleByKeyword_30D instanceof Error &&
       showTrendGoogleByKeyword_7D instanceof Error &&
-      showTrendGoogleByKeyword_1D instanceof Error &&
       showTrendGoogleByHashtag_30D instanceof Error &&
       showTrendGoogleByHashtag_7D instanceof Error &&
-      showTrendGoogleByHashtag_1D instanceof Error &&
       showRelatedQueriesGoogleByKeyword_30D instanceof Error &&
-      showRelatedQueriesGoogleByKeyword_7D instanceof Error &&
-      showRelatedQueriesGoogleByKeyword_1D instanceof Error &&
-      showRelatedTopicsGoogleByKeyword_30D instanceof Error &&
-      showRelatedTopicsGoogleByKeyword_7D instanceof Error &&
-      showRelatedTopicsGoogleByKeyword_1D instanceof Error
+      showRelatedQueriesGoogleByKeyword_7D instanceof Error
     ) {
       res.sendStatus(404);
       // throw new Error();
@@ -137,16 +91,10 @@ router.get(
     res.send({
       googlekeyword30d: showTrendGoogleByKeyword_30D,
       googlekeyword7d: showTrendGoogleByKeyword_7D,
-      googlekeyword1d: showTrendGoogleByKeyword_1D,
       googlehashtag30d: showTrendGoogleByHashtag_30D,
       googlehashtag7d: showTrendGoogleByHashtag_7D,
-      googlehashtag1d: showTrendGoogleByHashtag_1D,
       googlerelatedqueries30d: showRelatedQueriesGoogleByKeyword_30D,
       googlerelatedqueries7d: showRelatedQueriesGoogleByKeyword_7D,
-      googlerelatedqueries1d: showRelatedQueriesGoogleByKeyword_1D,
-      googlerelatedtopics30d: showRelatedTopicsGoogleByKeyword_30D,
-      googlerelatedtopics7d: showRelatedTopicsGoogleByKeyword_7D,
-      googlerelatedtopics1d: showRelatedTopicsGoogleByKeyword_1D,
     });
   }
 );
@@ -170,73 +118,34 @@ async function GoogleTrendsWithDays(
   const dataFormatted = await googleTrends
     .interestOverTime(query)
     .then(function (results: any) {
-      var resultsJSON = JSON.parse(results);
+      if (!!isHTML(results)) {
+        console.log("Can not toconnect");
+        return new Error("No data");
+      } else {
+        var resultsJSON = JSON.parse(results);
 
-      var data = resultsJSON["default"];
-      var timelineData = data["timelineData"]; // array of interest timestamps
+        var data = resultsJSON["default"];
+        var timelineData = data["timelineData"]; // array of interest timestamps
 
-      timelineData.forEach(function (timestamp: any) {
-        let getTimeStamp = parseInt(`${timestamp["time"] + "000"}`);
-        let fullDateFormatted = new Date(getTimeStamp);
+        timelineData.forEach(function (timestamp: any) {
+          let getTimeStamp = parseInt(`${timestamp["time"] + "000"}`);
+          let fullDateFormatted = new Date(getTimeStamp);
 
-        const year = fullDateFormatted.getFullYear();
-        const month = fullDateFormatted.getMonth();
-        const day = fullDateFormatted.getDate();
-        dataQuery.dataPoints.push({
-          x: { year: year, month: month, day: day },
-          y: parseInt(`${timestamp.value}`),
+          const year = fullDateFormatted.getFullYear();
+          const month = fullDateFormatted.getMonth();
+          const day = fullDateFormatted.getDate();
+          dataQuery.dataPoints.push({
+            x: { year: year, month: month, day: day },
+            y: parseInt(`${timestamp.value}`),
+          });
         });
-      });
 
-      dataQuery.dataPoints.shift();
+        dataQuery.dataPoints.shift();
 
-      return dataQuery.dataPoints.length != 0
-        ? dataQuery
-        : new Error("No data");
-    })
-    .catch(function (err: any) {
-      console.error(
-        "Oh no there was an error, double check your proxy settings",
-        err
-      );
-      throw new Error(err);
-    });
-
-  return dataFormatted;
-}
-
-async function GoogleTrendsWithOneDay(keyword: string, startTime: any) {
-  let query = {
-    keyword: keyword,
-    startTime: new Date(startTime),
-    timezone: 7,
-    geo: "TH",
-    property: "",
-    granularTimeResolution: true,
-  };
-
-  const dataQuery = { dataPoints: [{}] };
-
-  const dataFormatted = await googleTrends
-    .interestOverTime(query)
-    .then(function (results: any) {
-      var resultsJSON = JSON.parse(results);
-
-      var data = resultsJSON["default"];
-      var timelineData = data["timelineData"]; // array of interest timestamps
-
-      timelineData.forEach(function (timestamp: any) {
-        dataQuery.dataPoints.push({
-          x: parseInt(`${timestamp["time"] + "000"}`),
-          y: parseInt(`${timestamp.value}`),
-        });
-      });
-
-      dataQuery.dataPoints.shift();
-
-      return dataQuery.dataPoints.length != 0
-        ? dataQuery
-        : new Error("No data");
+        return dataQuery.dataPoints.length != 0
+          ? dataQuery
+          : new Error("No data");
+      }
     })
     .catch(function (err: any) {
       console.error(
@@ -268,34 +177,43 @@ async function GoogleRelatedQueriesWithDay(
   const dataFormatted = await googleTrends
     .relatedQueries(query)
     .then(function (results: any) {
-      var resultsJSON = JSON.parse(results);
+      if (!!isHTML(results)) {
+        console.log("Can not to connect");
+        return new Error("No data");
+      } else {
 
-      var data = resultsJSON["default"];
-      var rankedList = data["rankedList"]; // array of ranked List
+        var resultsJSON = JSON.parse(results);
 
-      // May be they have two array
-      // 1st for Related value 1 - 100
-      // and 2nd for weight value
+        var data = resultsJSON["default"];
+        var rankedList = data["rankedList"]; // array of ranked List
 
-      // Catch Error
-      if (rankedList.length > 0) {
-        for (let index = 0; index < rankedList.length; index++) {
-          const elementRankedKeyword = rankedList[index].rankedKeyword;
+        // May be they have two array
+        // 1st for Related value 1 - 100
+        // and 2nd for weight value
 
-          // only need 1st related value
-          if (index === 0) {
-            elementRankedKeyword.forEach(function (rankedKeywordItem: any) {
-              dataQuery.metaData.push({
-                query: `${rankedKeywordItem.query}`,
-                value: parseInt(`${rankedKeywordItem.value}`),
-              });
-            });
-          }
+        // Catch Error
+        if (rankedList.length > 0) {
+
           dataQuery.metaData.shift();
-        }
-      }
 
-      return dataQuery.metaData.length != 0 ? dataQuery : new Error("No data");
+          for (let index = 0; index < rankedList.length; index++) {
+            const elementRankedKeyword = rankedList[index].rankedKeyword;
+
+            // only need 1st related value
+            if (index === 0) {
+              elementRankedKeyword.forEach(function (rankedKeywordItem: any) {
+                dataQuery.metaData.push({
+                  query: `${rankedKeywordItem.query}`,
+                  value: parseInt(`${rankedKeywordItem.value}`),
+                });
+              });
+            }
+          }
+        }
+        return dataQuery.metaData.length != 0
+          ? dataQuery
+          : new Error("No data");
+      }
     })
     .catch(function (err: any) {
       console.error(
@@ -308,64 +226,9 @@ async function GoogleRelatedQueriesWithDay(
   return dataFormatted;
 }
 
-async function GoogleRelatedTopicsWithDay(
-  keyword: string,
-  startTime: any,
-  endTime: any
-) {
-  let query = {
-    keyword: keyword,
-    startTime: new Date(startTime),
-    endTime: new Date(endTime),
-    timezone: 7,
-    hl: "ti",
-    geo: "TH",
-  };
-
-  const dataQuery = { metaData: [{}] };
-
-  const dataFormatted = await googleTrends
-    .relatedTopics(query)
-    .then(function (results: any) {
-      var resultsJSON = JSON.parse(results);
-
-      var data = resultsJSON["default"];
-      var rankedList = data["rankedList"]; // array of ranked List
-
-      // May be they have two array
-      // 1st for Related value 1 - 100
-      // and 2nd for weight value
-
-      // Catch Error
-      if (rankedList.length > 0) {
-        for (let index = 0; index < rankedList.length; index++) {
-          const elementRankedKeyword = rankedList[index].rankedKeyword;
-
-          // only need 1st related value
-          if (index === 0) {
-            elementRankedKeyword.forEach(function (rankedKeywordItem: any) {
-              dataQuery.metaData.push({
-                query: `${rankedKeywordItem.topic.title}`,
-                value: parseInt(`${rankedKeywordItem.value}`),
-              });
-              
-            });
-          }
-          dataQuery.metaData.shift();
-        }
-      }
-
-      return dataQuery.metaData.length != 0 ? dataQuery : new Error("No data");
-    })
-    .catch(function (err: any) {
-      console.error(
-        "Oh no there was an error, double check your proxy settings",
-        err
-      );
-      throw new Error(err);
-    });
-
-  return dataFormatted;
+function isHTML(str: string) {
+  const htmlRegExp = new RegExp(/<([A-Za-z][A-Za-z0-9]*)\b[^>]*>(.*?)<\/\1>/);
+  return htmlRegExp.test(str);
 }
 
 export { router as searchTrendRouter };
