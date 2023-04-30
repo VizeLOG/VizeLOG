@@ -1,6 +1,9 @@
 name: tests-googleservice
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+      - 'googleservice/**'
 
 jobs:
   build:
