@@ -1,38 +1,4 @@
-// import CanvasJSReact from "../../canvasjs.stock.react";
-// var CanvasJS = CanvasJSReact.CanvasJS;
-// var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-// window.onload = function  () {
-
-// var chart = new CanvasJS.Chart("chartContainer", {
-// 	animationEnabled: true,
-// 	zoomEnabled: true,
-// 	title:{
-// 		text: "Try Zooming and Panning" 
-// 	},
-// 	data: data  // random generator below
-// });
-// chart.render();
-
-// }
-
-// var limit = 1000;
-
-// var y = 0;
-// var data = [];
-// var dataSeries = { type: "line" };
-// var dataPoints = [];
-// for (var i = 0; i < limit; i += 1) {
-// 	y += (Math.random() * 10 - 5);
-// 	dataPoints.push({
-// 		x: i - limit / 2,
-// 		y: y                
-// 	});
-// }
-// dataSeries.dataPoints = dataPoints;
-// data.push(dataSeries);               
-
-
-import React, { Component, useEffect, useState } from "react";
+import React from "react";
 import CanvasJSReact from "../../canvasjs.stock.react";
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
