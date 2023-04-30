@@ -1,4 +1,4 @@
-name: tests
+name: tests-googleservice
 
 on: pull_request
 
