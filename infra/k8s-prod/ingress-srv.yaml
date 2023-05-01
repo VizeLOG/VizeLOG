@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - host: www.ticketing-app-thecoding-prod.store
+    - host: www.vizelog-app.space
       http:
         paths:
           - path: /api/google/?(.*)
@@ -37,7 +37,7 @@ kind: Service
 metadata:
   annotations:
     service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
-    service.beta.kubernetes.io/do-loadbalancer-hostname: "www.ticketing-app-thecoding-prod.store"
+    service.beta.kubernetes.io/do-loadbalancer-hostname: "www.vizelog-app.space"
   labels:
     helm.sh/chart: ingress-nginx-2.0.3
     app.kubernetes.io/name: ingress-nginx
