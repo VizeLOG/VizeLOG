@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: googleservice-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: googleservice
+  template:
+    metadata:
+      labels:
+        app: googleservice
+    spec:
+      containers:
+        - name: googleservice
+          image: vizelog/googleservice-dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: googleservice-srv
+spec:
+  selector:
+    app: googleservice
+  ports:
+    - name: googleservice
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
