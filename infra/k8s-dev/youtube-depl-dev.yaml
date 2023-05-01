@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: youtubeservice-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: youtubeservice
+  template:
+    metadata:
+      labels:
+        app: youtubeservice
+    spec:
+      containers:
+        - name: youtubeservice
+          image: vizelog/youtubeservice-dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: youtubeservice-srv
+spec:
+  selector:
+    app: youtubeservice
+  ports:
+    - name: youtubeservice
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
